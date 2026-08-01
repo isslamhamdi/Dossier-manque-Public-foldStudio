@@ -1,0 +1,13 @@
+{
+  "name": "Fold Studio",
+  "id": "fold-studio-plugin",
+  "api": "1.0.0",
+  "main": "code.js",
+  "ui": "ui.html",
+  "capabilities": [],
+  "enableProposedApi": false,
+  "editorType": ["figma", "figjam"],
+  "networkAccess": {
+    "allowedDomains": ["https://fold-studio.vercel.app", "http://localhost:3000"]
+  }
+}

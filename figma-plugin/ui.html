@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>Fold Studio</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Inter', -apple-system, sans-serif; font-size: 12px; color: #333; background: #fff; }
+  .header { padding: 16px; border-bottom: 1px solid #e8e8e8; }
+  .logo { font-size: 14px; font-weight: 700; color: #5A6BD4; }
+  .section { padding: 12px 16px; }
+  label { display: block; font-size: 10px; font-weight: 600; color: #888; margin-bottom: 4px; letter-spacing: 0.8px; text-transform: uppercase; }
+  input, textarea { width: 100%; padding: 7px 9px; border: 1px solid #e0e0e0; border-radius: 5px; font-size: 12px; font-family: inherit; outline: none; }
+  input:focus, textarea:focus { border-color: #5A6BD4; }
+  button { width: 100%; padding: 9px 0; border: none; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; font-family: inherit; }
+  .btn-primary { background: #5A6BD4; color: #fff; }
+  .btn-secondary { background: #f0f0f0; color: #555; }
+  .color-row { display: flex; gap: 6px; align-items: center; margin-bottom: 8px; }
+  .color-swatch { width: 24px; height: 24px; border-radius: 4px; border: 1px solid rgba(0,0,0,0.1); cursor: pointer; }
+  .status { padding: 8px 12px; border-radius: 5px; font-size: 11px; margin: 8px 16px; }
+  .status.success { background: #f0fdf4; color: #16a34a; }
+  .status.error { background: #fef2f2; color: #dc2626; }
+  hr { border: none; border-top: 1px solid #f0f0f0; margin: 0; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="logo">Fold Studio</div>
+  <div style="font-size:10px;color:#aaa;margin-top:2px">Plugin Figma — Packaging Design</div>
+</div>
+
+<div class="section">
+  <label>URL Fold Studio</label>
+  <input type="url" id="studioUrl" value="http://localhost:3000" placeholder="https://fold-studio.vercel.app" />
+</div>
+
+<hr/>
+
+<div class="section">
+  <label>Importer un patron de découpe</label>
+  <div style="display:flex;gap:6px;margin-top:4px">
+    <input type="text" id="projectName" placeholder="Nom du projet" style="flex:1" />
+    <button class="btn-secondary" id="btnFetch" style="width:auto;padding:7px 12px">Charger</button>
+  </div>
+  <button class="btn-primary" id="btnImport" style="margin-top:8px">Importer le patron SVG</button>
+</div>
+
+<hr/>
+
+<div class="section">
+  <label>Appliquer une couleur</label>
+  <div class="color-row">
+    <input type="color" id="colorPicker" value="#5A6BD4" style="width:36px;height:28px;padding:2px;border-radius:4px;border:1px solid #e0e0e0;cursor:pointer" />
+    <span id="colorHex" style="font-size:11px;color:#666;flex:1">#5A6BD4</span>
+    <button class="btn-secondary" id="btnFill" style="width:auto;padding:6px 10px">Fond</button>
+    <button class="btn-secondary" id="btnStroke" style="width:auto;padding:6px 10px">Contour</button>
+  </div>
+</div>
+
+<hr/>
+
+<div id="status"></div>
+
+<script>
+  const status = (msg, type) => {
+    document.getElementById('status').innerHTML = `<div class="status ${type}">${msg}</div>`;
+    setTimeout(() => { document.getElementById('status').innerHTML = '' }, 3500);
+  };
+
+  document.getElementById('colorPicker').addEventListener('input', e => {
+    document.getElementById('colorHex').textContent = e.target.value;
+  });
+
+  document.getElementById('btnFill').addEventListener('click', () => {
+    const hex = document.getElementById('colorPicker').value;
+    parent.postMessage({ pluginMessage: { type: 'apply-color', hex, target: 'fill' } }, '*');
+  });
+
+  document.getElementById('btnStroke').addEventListener('click', () => {
+    const hex = document.getElementById('colorPicker').value;
+    parent.postMessage({ pluginMessage: { type: 'apply-color', hex, target: 'stroke' } }, '*');
+  });
+
+  document.getElementById('btnFetch').addEventListener('click', async () => {
+    const url = document.getElementById('studioUrl').value;
+    status('Connexion à Fold Studio...', '');
+    try {
+      const res = await fetch(`${url}/api/render`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ format: 'svg' }) });
+      if (res.ok) status('Connecté à Fold Studio ✓', 'success');
+      else status('Endpoint non disponible', 'error');
+    } catch {
+      status('Impossible de se connecter — vérifiez l\'URL', 'error');
+    }
+  });
+
+  document.getElementById('btnImport').addEventListener('click', async () => {
+    const url = document.getElementById('studioUrl').value;
+    const name = document.getElementById('projectName').value || 'Fold Studio';
+    status('Récupération du patron...', '');
+    try {
+      const res = await fetch(`${url}/api/render`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ format: 'svg', template: 'box' }),
+      });
+      if (!res.ok) { status('Erreur de récupération', 'error'); return; }
+      const svgContent = await res.text();
+      parent.postMessage({ pluginMessage: { type: 'import-dieline', svgContent, projectName: name } }, '*');
+    } catch {
+      status('Erreur réseau', 'error');
+    }
+  });
+
+  window.onmessage = e => {
+    const msg = e.data.pluginMessage;
+    if (!msg) return;
+    if (msg.type === 'import-success') status('Patron importé avec succès ✓', 'success');
+    if (msg.type === 'selection') {
+      if (msg.count === 0) status('Aucun élément sélectionné', 'error');
+    }
+  };
+</script>
+</body>
+</html>

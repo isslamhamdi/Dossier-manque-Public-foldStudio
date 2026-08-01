@@ -1,0 +1,132 @@
+/* ── Ghost buttons (icon-only controls) ──────────────────────────────────── */
+.fs-btn-ghost {
+  transition: color 0.12s, opacity 0.12s;
+}
+.fs-btn-ghost:not(:disabled):hover { color: #555 !important; }
+.fs-btn-ghost:not(:disabled):active { opacity: 0.5; }
+.fs-btn-ghost:disabled { cursor: default; }
+
+/* ── Default buttons (secondary actions) ─────────────────────────────────── */
+.fs-btn-default {
+  transition: background 0.12s, border-color 0.12s;
+}
+.fs-btn-default:not(:disabled):hover {
+  background: #ebebeb !important;
+  border-color: #c4c4c4 !important;
+}
+.fs-btn-default:not(:disabled):active { background: #e2e2e2 !important; }
+.fs-btn-default:disabled { opacity: 0.5; cursor: default; }
+
+/* ── Primary buttons (main CTA) ───────────────────────────────────────────── */
+.fs-btn-primary {
+  transition: opacity 0.12s, transform 0.1s;
+}
+.fs-btn-primary:not(:disabled):hover { opacity: 0.86; }
+.fs-btn-primary:not(:disabled):active { opacity: 0.72; transform: scale(0.99); }
+.fs-btn-primary:disabled { opacity: 0.55; cursor: default; }
+
+/* ── Tab / segment buttons (unit picker, face selector) ──────────────────── */
+.fs-btn-tab { transition: background 0.15s, color 0.15s; }
+
+/* ── Clickable rows (layer list) ─────────────────────────────────────────── */
+.fs-row { transition: background 0.1s; }
+/* only applies when data-state='default' (transparent bg) — no !important needed */
+.fs-row[data-state='default']:hover { background: #f2f2f2; }
+
+/* ── Inputs (text, number, textarea) ─────────────────────────────────────── */
+.fs-input { transition: border-color 0.12s, box-shadow 0.12s; }
+.fs-input:focus {
+  border-color: #1a1a1a !important;
+  box-shadow: 0 0 0 2px rgba(26,26,26,0.07);
+  outline: none;
+}
+.fs-input::placeholder { color: #bbb; }
+
+/* ── Swatch trigger (color row click target) ─────────────────────────────── */
+.fs-swatch-trigger {
+  border-radius: 4px;
+  padding: 3px 5px;
+  margin: -3px -5px;
+  transition: background 0.1s;
+}
+.fs-swatch-trigger:hover { background: rgba(0,0,0,0.04); }
+
+/* ── Radix Slider ────────────────────────────────────────────────────────── */
+.fs-slider-thumb:focus {
+  box-shadow: 0 0 0 3px rgba(26,26,26,0.15);
+}
+.fs-slider-thumb[data-disabled] { opacity: 0.4; cursor: not-allowed; }
+
+/* ── Radix Select ────────────────────────────────────────────────────────── */
+.fs-select-trigger[data-placeholder] { color: #bbb; }
+.fs-select-trigger[data-state='open'] svg { transform: rotate(180deg); }
+.fs-select-trigger svg { transition: transform 0.15s; }
+
+.fs-select-item[data-highlighted] {
+  background: #f2f2f2;
+  outline: none;
+}
+.fs-select-item[data-state='checked'] { font-weight: 600; }
+
+/* ── TemplateModal entrance / exit ───────────────────────────────────────── */
+@keyframes fs-overlay-in  { from { opacity: 0 } to { opacity: 1 } }
+@keyframes fs-overlay-out { from { opacity: 1 } to { opacity: 0 } }
+@keyframes fs-modal-in    { from { opacity: 0; transform: scale(0.96) translateY(-10px) } to { opacity: 1; transform: scale(1) translateY(0) } }
+@keyframes fs-modal-out   { from { opacity: 1; transform: scale(1) translateY(0) } to { opacity: 0; transform: scale(0.96) translateY(-10px) } }
+
+.fs-modal-overlay         { animation: fs-overlay-in  0.18s ease forwards; }
+.fs-modal-overlay.closing { animation: fs-overlay-out 0.18s ease forwards; }
+.fs-modal-card            { animation: fs-modal-in    0.22s ease forwards; }
+.fs-modal-card.closing    { animation: fs-modal-out   0.18s ease forwards; }
+
+/* ── Collapsible section (CSS grid height animation) ─────────────────────── */
+.fs-collapsible-outer {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.2s ease;
+}
+.fs-collapsible-outer.open { grid-template-rows: 1fr; }
+.fs-collapsible-inner { overflow: hidden; min-height: 0; }
+
+/* ── Shimmer CTA button (EXPORT HD) ─────────────────────────────────────── */
+@keyframes fs-shimmer {
+  0%        { transform: translateX(-100%) }
+  50%, 100% { transform: translateX(220%)  }
+}
+.fs-shimmer-btn {
+  position: relative;
+  overflow: hidden;
+}
+.fs-shimmer-btn::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.22) 50%, transparent 60%);
+  transform: translateX(-100%);
+  animation: fs-shimmer 2.4s ease-in-out infinite;
+  pointer-events: none;
+}
+
+/* ── Glow pulse (play button while animating) ────────────────────────────── */
+@keyframes fs-glow {
+  0%, 100% { box-shadow: 0 0 0 0   rgba(224,52,42,0)    }
+  50%       { box-shadow: 0 0 0 5px rgba(224,52,42,0.35) }
+}
+.fs-glow-playing {
+  animation: fs-glow 1.4s ease-in-out infinite;
+  border-color: #e0342a !important;
+  color: #e0342a !important;
+}
+
+/* ── 3D tilt card (TemplateCard hover) ───────────────────────────────────── */
+.fs-card-3d {
+  transition: transform 0.14s ease, box-shadow 0.14s ease;
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+
+/* ── Render drawer slide-in ──────────────────────────────────────────────── */
+@keyframes slideInRight {
+  from { transform: translateX(100%); opacity: 0; }
+  to   { transform: translateX(0);    opacity: 1; }
+}
